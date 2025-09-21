@@ -1,0 +1,5 @@
+{
+  "name": "AI Image Detector",
+  "description": "An advanced web application that leverages deep learning via the Gemini API to analyze and determine whether an image is a real photograph or an AI-generated artifact. Users can upload an image to receive an instant classification and a detailed analysis of the visual characteristics that led to the conclusion.",
+  "requestFramePermissions": []
+}
