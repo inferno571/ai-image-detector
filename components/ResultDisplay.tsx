@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { motion } from 'framer-motion';
 import type { AnalysisResult } from '../types';
 import { Classification } from '../types';
 import { CheckCircleIcon, ExclamationIcon, QuestionMarkCircleIcon, SparklesIcon } from './icons';
@@ -15,26 +15,20 @@ const getClassificationStyles = (classification: Classification) => {
   switch (classification) {
     case Classification.REAL:
       return {
-        bgColor: 'bg-green-900/50',
-        textColor: 'text-green-300',
-        borderColor: 'border-green-500',
+        textColor: 'text-green-400',
         Icon: CheckCircleIcon,
         text: 'Likely Real',
       };
     case Classification.FAKE:
       return {
-        bgColor: 'bg-red-900/50',
-        textColor: 'text-red-300',
-        borderColor: 'border-red-500',
+        textColor: 'text-red-400',
         Icon: ExclamationIcon,
         text: 'Likely AI-Generated',
       };
     case Classification.UNCERTAIN:
     default:
       return {
-        bgColor: 'bg-yellow-900/50',
-        textColor: 'text-yellow-300',
-        borderColor: 'border-yellow-500',
+        textColor: 'text-yellow-400',
         Icon: QuestionMarkCircleIcon,
         text: 'Uncertain',
       };
@@ -43,36 +37,42 @@ const getClassificationStyles = (classification: Classification) => {
 
 export const ResultDisplay: React.FC<ResultDisplayProps> = ({ result, onHighlightClick, isHighlighting }) => {
   const { classification, reasoning } = result;
-  const { bgColor, textColor, borderColor, Icon, text } = getClassificationStyles(classification);
+  const { textColor, Icon, text } = getClassificationStyles(classification);
 
   return (
-    <div className={`w-full h-full flex flex-col justify-between p-6 rounded-lg border ${borderColor} ${bgColor} animate-fade-in`}>
-        <div>
-            <div className="text-center">
-                <h3 className="text-lg font-semibold text-brand-text mb-2">Analysis Complete</h3>
-                <div className={`inline-flex items-center justify-center px-4 py-2 rounded-full font-bold ${textColor}`}>
-                    <Icon />
-                    <span className="ml-2 text-2xl">{text}</span>
-                </div>
-            </div>
-            <div className="mt-4 pt-4 border-t border-brand-border w-full">
-                <h4 className="font-semibold text-brand-text mb-2">AI Reasoning:</h4>
-                <p className="text-brand-subtle text-sm leading-relaxed">{reasoning}</p>
-            </div>
+    <motion.div
+      className="w-full h-full flex flex-col justify-between"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+    >
+      <div>
+        <div className="text-center">
+          <div className={`inline-flex items-center justify-center px-4 py-2 rounded-full font-bold ${textColor}`}>
+            <Icon className="h-8 w-8" />
+            <span className="ml-3 text-2xl tracking-tight">{text}</span>
+          </div>
         </div>
-        
-        {classification === Classification.FAKE && (
-            <div className="mt-6">
-                <button
-                    onClick={onHighlightClick}
-                    disabled={isHighlighting}
-                    className="w-full bg-yellow-500/20 text-yellow-300 font-bold py-3 px-4 rounded-lg hover:bg-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center space-x-2 border border-yellow-500"
-                >
-                    {isHighlighting ? <Loader /> : <SparklesIcon />}
-                    <span>{isHighlighting ? 'Highlighting...' : 'Highlight Artifacts'}</span>
-                </button>
-            </div>
-        )}
-    </div>
+        <div className="mt-6 pt-4 border-t border-glass-border w-full">
+          <h4 className="font-semibold text-brand-text mb-2">AI Reasoning:</h4>
+          <p className="text-brand-subtle text-sm leading-relaxed">{reasoning}</p>
+        </div>
+      </div>
+
+      {classification === Classification.FAKE && (
+        <div className="mt-6">
+          <motion.button
+            onClick={onHighlightClick}
+            disabled={isHighlighting}
+            className="w-full bg-brand-accent text-brand-primary font-bold py-3 px-4 rounded-lg hover:bg-brand-accent-dark disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-brand-accent/20 hover:shadow-brand-accent/40"
+            whileHover={{ y: -2 }}
+            whileTap={{ y: 1 }}
+          >
+            {isHighlighting ? <Loader /> : <SparklesIcon className="h-5 w-5" />}
+            <span>{isHighlighting ? 'Highlighting...' : 'Highlight Artifacts'}</span>
+          </motion.button>
+        </div>
+      )}
+    </motion.div>
   );
 };

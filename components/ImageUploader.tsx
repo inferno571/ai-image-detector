@@ -1,7 +1,9 @@
 import React, { useCallback, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { UploadIcon } from './icons';
 
 interface ImageUploaderProps {
-  onImageSelect: (files: FileList) => void;
+  onImageSelect: (files: FileList | File[]) => void;
 }
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageSelect }) => {
@@ -10,9 +12,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageSelect }) =
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       onImageSelect(e.target.files);
+      e.target.value = ''; // Reset for re-uploading
     }
-    // Reset file input to allow re-uploading the same file(s)
-    e.target.value = '';
   };
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLLabelElement>) => {
@@ -24,40 +25,44 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageSelect }) =
     }
   }, [onImageSelect]);
 
-  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+  const handleDragEvents = (e: React.DragEvent<HTMLLabelElement>, dragging: boolean) => {
     e.preventDefault();
     e.stopPropagation();
-  };
-
-  const handleDragEnter = (e: React.DragEvent<HTMLLabelElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
-  
-  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+    // To prevent flickering, only update state if it's changing
+    if (isDragging !== dragging) {
+      setIsDragging(dragging);
+    }
   };
 
   return (
-    <label
+    <motion.label
       onDrop={handleDrop}
-      onDragOver={handleDragOver}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
-      className={`flex justify-center w-full h-32 px-4 transition bg-brand-primary border-2 ${isDragging ? 'border-brand-accent' : 'border-brand-border'} border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none`}
+      onDragOver={(e) => handleDragEvents(e, true)}
+      onDragEnter={(e) => handleDragEvents(e, true)}
+      onDragLeave={(e) => handleDragEvents(e, false)}
+      className="relative flex justify-center items-center w-full h-40 px-4 transition-colors duration-300 bg-black/20 border-2 border-dashed border-glass-border rounded-xl cursor-pointer focus:outline-none overflow-hidden"
+      whileHover={{ scale: 1.02, borderColor: 'rgba(0, 245, 212, 0.5)' }}
+      transition={{ duration: 0.2 }}
     >
-      <span className="flex items-center space-x-2">
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-brand-subtle" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-        </svg>
-        <span className="font-medium text-brand-subtle">
-          Drop files to attach, or <span className="text-brand-accent underline">browse</span>
+      <AnimatePresence>
+        {isDragging && (
+          <motion.div
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="absolute inset-0 bg-brand-accent/10 border-2 border-brand-accent shadow-glow z-10 rounded-xl"
+          />
+        )}
+      </AnimatePresence>
+
+      <div className="flex flex-col items-center space-y-2 z-20 pointer-events-none">
+        <UploadIcon className={`w-8 h-8 transition-transform duration-300 ${isDragging ? 'scale-110 text-brand-accent' : 'text-brand-subtle'}`} />
+        <span className="font-medium text-brand-subtle text-center">
+          Drop your images here, or <span className="text-brand-accent font-semibold">browse files</span>
         </span>
-      </span>
+      </div>
       <input type="file" name="file_upload" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={handleFileChange} multiple />
-    </label>
+    </motion.label>
   );
 };
