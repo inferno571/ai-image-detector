@@ -301,7 +301,7 @@ const App: React.FC = () => {
           <History history={history} onSelect={handleSelectHistory} />
         )}
 
-      </motion.main>
+      </main>
       <Footer />
     </div>
   );
