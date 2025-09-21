@@ -1,5 +1,4 @@
-import type { Config } from 'tailwindcss'
-
+/** @type {import('tailwindcss').Config} */
 export default {
   content: [
     "./index.html",
@@ -38,10 +37,10 @@ export default {
         }
       },
       animation: {
-        pulseGlow: 'pulseGlow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        pulseGlow: 'pulseGlow 2.5s cubic-bezier(0.4, 0.6, 1) infinite',
         fadeInUp: 'fadeInUp 0.5s ease-out forwards',
       },
     },
   },
   plugins: [],
-} satisfies Config
+}
